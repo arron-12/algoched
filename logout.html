@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logging out...</title>
+  <style>
+    body { display:flex; align-items:center; justify-content:center; min-height:100vh; background:#060912; color:#e2e8f8; font-family:Arial, sans-serif; }
+    .message { max-width: 420px; text-align: center; padding: 28px; border: 1px solid rgba(0,229,255,0.15); border-radius: 12px; background: rgba(13,18,36,0.9); }
+    .message h1 { font-size: 20px; margin-bottom: 12px; }
+    .message p { font-size: 14px; color: rgba(226,232,248,0.8); }
+  </style>
+</head>
+<body>
+  <div class="message">
+    <h1>Signing out...</h1>
+    <p>If you are not redirected, <a href="login.html" style="color:#00e5ff;text-decoration:none;">click here</a>.</p>
+  </div>
+  <script>
+    sessionStorage.removeItem('loggedIn');
+    sessionStorage.removeItem('role');
+    sessionStorage.removeItem('userName');
+    sessionStorage.setItem('loggedIn', 'false');
+    setTimeout(() => window.location.replace('login.html'), 250);
+  </script>
+</body>
+</html>

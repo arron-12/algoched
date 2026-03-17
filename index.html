@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <meta name="description" content="AlgoSched – Automated Class Scheduling for CCS Students of Rizal College of Taal" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>AlgoSched | RCT-CCS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #060912;
+      --surface: #0d1224;
+      --surface2: #131929;
+      --accent: #00e5ff;
+      --accent2: #7b2ff7;
+      --accent3: #ff4d6d;
+      --text: #e2e8f8;
+      --muted: #6b7a99;
+      --border: rgba(0,229,255,0.15);
+      --glow: 0 0 20px rgba(0,229,255,0.25);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Exo 2', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Ambient glow orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: 0;
+      pointer-events: none;
+      animation: pulse 6s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(123,47,247,0.12); top: -150px; right: -100px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(0,229,255,0.08); bottom: 100px; left: -100px; animation-delay: 3s; }
+    .orb-3 { width: 300px; height: 300px; background: rgba(255,77,109,0.06); top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 1.5s; }
+
+    @keyframes pulse { from { opacity: 0.6; } to { opacity: 1; } }
+
+    /* HEADER */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(6,9,18,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace;
+      font-size: 14px;
+      font-weight: 900;
+      color: white;
+      box-shadow: 0 0 16px rgba(0,229,255,0.3);
+    }
+
+    .logo-text {
+      font-family: 'Orbitron', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    nav { display: flex; gap: 4px; }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    nav a:hover, nav a.active {
+      color: var(--accent);
+      background: rgba(0,229,255,0.08);
+    }
+
+    .login-btn {
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 20px rgba(0,229,255,0.3);
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0,229,255,0.5);
+    }
+
+    /* MAIN LAYOUT */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* HERO */
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 60px 0;
+      gap: 32px;
+    }
+
+    .hero-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--border);
+      padding: 6px 16px;
+      border-radius: 20px;
+      background: rgba(0,229,255,0.06);
+      animation: fadeSlideUp 0.6s ease both;
+    }
+
+    .hero h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(40px, 7vw, 96px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -2px;
+      animation: fadeSlideUp 0.6s 0.1s ease both;
+    }
+
+    .hero h1 span {
+      display: block;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% auto;
+      animation: gradientShift 4s linear infinite;
+    }
+
+    @keyframes gradientShift {
+      from { background-position: 0% center; }
+      to { background-position: 200% center; }
+    }
+
+    .hero-sub {
+      max-width: 640px;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--muted);
+      font-weight: 300;
+      animation: fadeSlideUp 0.6s 0.2s ease both;
+    }
+
+    .hero-sub strong { color: var(--text); font-weight: 600; }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      animation: fadeSlideUp 0.6s 0.3s ease both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: white;
+      box-shadow: 0 0 30px rgba(0,229,255,0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 50px rgba(0,229,255,0.5);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      background: rgba(0,229,255,0.08);
+      border-color: var(--accent);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 48px;
+      animation: fadeSlideUp 0.6s 0.4s ease both;
+    }
+
+    .stat { text-align: left; }
+    .stat-val {
+      font-family: 'Orbitron', monospace;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .stat-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* SECTIONS */
+    section { padding: 80px 0; }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .section-header h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card:hover {
+      border-color: rgba(0,229,255,0.3);
+      box-shadow: var(--glow);
+      transform: translateY(-4px);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    /* FEATURES */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
+    .feature-icon.c1 { background: rgba(0,229,255,0.12); }
+    .feature-icon.c2 { background: rgba(123,47,247,0.12); }
+    .feature-icon.c3 { background: rgba(255,77,109,0.12); }
+    .feature-icon.c4 { background: rgba(0,229,255,0.12); }
+    .feature-icon.c5 { background: rgba(123,47,247,0.12); }
+    .feature-icon.c6 { background: rgba(255,77,109,0.12); }
+
+    .card h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .card p { font-size: 14px; color: var(--muted); line-height: 1.7; font-weight: 300; }
+
+    /* ABOUT */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) { .about-grid { grid-template-columns: 1fr; } }
+
+    .about-grid h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 16px;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .about-grid p { font-size: 14px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; }
+
+    .algo-steps { list-style: none; }
+
+    .algo-steps li {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .step-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent2);
+      background: rgba(123,47,247,0.15);
+      border-radius: 4px;
+      padding: 4px 8px;
+      min-width: 32px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* FOOTER */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .footer-logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    footer p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.2); border-radius: 4px; }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--accent);
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-menu-btn { display: flex; align-items: center; }
+      nav { display: none; }
+      .hero-stats { gap: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">AS</div>
+      <span class="logo-text">AlgoSched</span>
+    </div>
+    <nav>
+      <a href="#home" class="active">Home</a>
+      <a href="#features">Features</a>
+      <a href="#about">About</a>
+    </nav>
+    <button class="mobile-menu-btn" onclick="scrollTo({top:0})">☰</button>
+    <button class="login-btn" onclick="window.location.href='login.html'">Login</button>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero" id="home">
+      <div class="hero-tag">🎓 Rizal College of Taal · CCS Department</div>
+      <h1>
+        Algo<span>Sched</span>
+      </h1>
+      <p class="hero-sub">
+        An <strong>Automated Class Scheduling System</strong> for CCS Students using
+        <strong>Elitist Genetic Algorithm</strong> and <strong>Constraint Satisfaction</strong> —
+        delivering optimal, conflict-free schedules in seconds.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="window.location.href='login.html'">🚀 Get Started</button>
+        <a href="#features" class="btn btn-outline">⚙ How It Works</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-val" data-target="99">0%</div>
+          <div class="stat-label">Constraint Satisfaction</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" data-target="0">—</div>
+          <div class="stat-label">Schedule Conflicts</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" data-target="3">0s</div>
+          <div class="stat-label">Generation Time</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features">
+      <div class="section-header">
+        <h2>System Features</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="features-grid">
+        <div class="card">
+          <div class="feature-icon c1">🧬</div>
+          <h3>Elitist GA Engine</h3>
+          <p>Preserves top-performing chromosomes across generations ensuring the best schedule is never lost during evolution.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon c2">🔒</div>
+          <h3>Hard Constraint Enforcement</h3>
+          <p>Guarantees zero conflicts in room allocation, faculty assignments, and student section overlaps through CSP filtering.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon c3">📊</div>
+          <h3>Multi-objective Optimization</h3>
+          <p>Balances competing soft constraints like preferred time slots, faculty load, and room utilization simultaneously.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon c4">⚡</div>
+          <h3>Real-Time Generation</h3>
+          <p>Produces a fully optimized schedule for the entire CCS department within seconds using heuristic acceleration.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon c5">🌐</div>
+          <h3>Web-Based Access</h3>
+          <p>Access the system from any modern web browser. No installation required for immediate use and updates.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon c6">📤</div>
+          <h3>Export & Print</h3>
+          <p>Export finalized schedules as PDF or Excel for distribution to faculty, students, and the registrar's office.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about">
+      <div class="section-header">
+        <h2>About This Project</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="about-grid">
+        <div>
+          <div class="card">
+            <h3>Research Overview</h3>
+            <p>AlgoSched addresses the complexity of academic timetabling — an NP-hard combinatorial problem — using a hybrid approach combining <strong style="color:var(--text)">Elitist Genetic Algorithm (EGA)</strong> for global search and <strong style="color:var(--text)">Constraint Satisfaction Problem (CSP)</strong> techniques for feasibility enforcement.</p>
+            <p>Developed specifically for the <strong style="color:var(--text)">College of Computer Studies (CCS)</strong> of <strong style="color:var(--text)">Rizal College of Taal</strong>, the system automates scheduling for multiple year levels, sections, and subjects while respecting institutional constraints.</p>
+            <p>The Elitist GA preserves the best solutions (elites) each generation, preventing fitness regression — a critical improvement over standard GAs for scheduling problems.</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="card" style="margin-bottom:24px;">
+            <h3>EGA Process Flow</h3>
+            <ul class="algo-steps">
+              <li><span class="step-num">01</span>Initialize random population of schedule chromosomes</li>
+              <li><span class="step-num">02</span>Evaluate fitness using constraint satisfaction score</li>
+              <li><span class="step-num">03</span>Select elite chromosomes (top 15%) for preservation</li>
+              <li><span class="step-num">04</span>Tournament selection for parent chromosomes</li>
+              <li><span class="step-num">05</span>Single-point crossover to produce offspring</li>
+              <li><span class="step-num">06</span>Random mutation to maintain diversity</li>
+              <li><span class="step-num">07</span>Replace population, keep elites intact</li>
+              <li><span class="step-num">08</span>Repeat until convergence or 500 generations</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">AlgoSched</div>
+    <p>An Automated Class Scheduling System for CCS Students<br>
+    Rizal College of Taal · Using Elitist Genetic Algorithm & Constraint Satisfaction<br>
+    <span style="opacity:0.5">© 2025 — College of Computer Studies</span></p>
+  </footer>
+
+  <script>
+    // Animate stats
+    function animateValue(obj, start, end, duration) {
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        obj.innerHTML = Math.floor(progress * (end - start) + start) + (end === 99 ? '%' : end === 3 ? 's' : '');
+        if (progress < 1) window.requestAnimationFrame(step);
+      };
+      window.requestAnimationFrame(step);
+    }
+
+    const stats = document.querySelectorAll('.stat-val');
+    stats.forEach(stat => {
+      const target = parseInt(stat.getAttribute('data-target'));
+      if (!isNaN(target)) {
+        animateValue(stat, 0, target, 2000);
+      }
+    });
+
+    // Check authentication status
+    if (sessionStorage.getItem('loggedIn') === 'true') {
+      const role = sessionStorage.getItem('role');
+      if (role === 'admin') {
+        window.location.href = 'admin.html';
+      } else {
+        window.location.href = 'adviser.html';
+      }
+    } else {
+      // Not logged in, redirect to login page
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <meta name="description" content="AlgoSched Adviser – Automated Class Scheduling for CCS Students of Rizal College of Taal" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>AlgoSched | Adviser Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #060912;
+      --surface: #0d1224;
+      --surface2: #131929;
+      --accent: #00e5ff;
+      --accent2: #7b2ff7;
+      --accent3: #ff4d6d;
+      --text: #e2e8f8;
+      --muted: #6b7a99;
+      --border: rgba(0,229,255,0.15);
+      --glow: 0 0 20px rgba(0,229,255,0.25);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Exo 2', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Ambient glow orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: 0;
+      pointer-events: none;
+      animation: pulse 6s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(123,47,247,0.12); top: -150px; right: -100px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(0,229,255,0.08); bottom: 100px; left: -100px; animation-delay: 3s; }
+    .orb-3 { width: 300px; height: 300px; background: rgba(255,77,109,0.06); top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 1.5s; }
+
+    @keyframes pulse { from { opacity: 0.6; } to { opacity: 1; } }
+
+    /* HEADER */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(6,9,18,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace;
+      font-size: 14px;
+      font-weight: 900;
+      color: white;
+      box-shadow: 0 0 16px rgba(0,229,255,0.3);
+    }
+
+    .logo-text {
+      font-family: 'Orbitron', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    nav { display: flex; gap: 4px; }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    nav a:hover, nav a.active {
+      color: var(--accent);
+      background: rgba(0,229,255,0.08);
+    }
+
+    /* Role badge shown in header after login */
+    .user-badge {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 600;
+    }
+
+    .user-badge-role {
+      padding: 4px 12px; border-radius: 20px; font-size: 11px;
+      font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .user-badge-role.adviser { background: rgba(123,47,247,0.15); color: #b085ff; border: 1px solid rgba(123,47,247,0.3); }
+
+    .logout-btn {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; font-family: 'Exo 2', sans-serif;
+    }
+    .logout-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+
+    /* MAIN LAYOUT */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* HERO */
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 60px 0;
+      gap: 32px;
+    }
+
+    .hero-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--border);
+      padding: 6px 16px;
+      border-radius: 20px;
+      background: rgba(0,229,255,0.06);
+      animation: fadeSlideUp 0.6s ease both;
+    }
+
+    .hero h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(40px, 7vw, 96px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -2px;
+      animation: fadeSlideUp 0.6s 0.1s ease both;
+    }
+
+    .hero h1 span {
+      display: block;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% auto;
+      animation: gradientShift 4s linear infinite;
+    }
+
+    @keyframes gradientShift {
+      from { background-position: 0% center; }
+      to { background-position: 200% center; }
+    }
+
+    .hero-sub {
+      max-width: 640px;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--muted);
+      font-weight: 300;
+      animation: fadeSlideUp 0.6s 0.2s ease both;
+    }
+
+    .hero-sub strong { color: var(--text); font-weight: 600; }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      animation: fadeSlideUp 0.6s 0.3s ease both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: white;
+      box-shadow: 0 0 30px rgba(0,229,255,0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 50px rgba(0,229,255,0.5);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      background: rgba(0,229,255,0.08);
+      border-color: var(--accent);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 48px;
+      animation: fadeSlideUp 0.6s 0.4s ease both;
+    }
+
+    .stat { text-align: left; }
+    .stat-val {
+      font-family: 'Orbitron', monospace;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .stat-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* SECTIONS */
+    section { padding: 80px 0; }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .section-header h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card:hover {
+      border-color: rgba(0,229,255,0.3);
+      box-shadow: var(--glow);
+      transform: translateY(-4px);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    /* SCHEDULE VIEW */
+    .schedule-section { padding: 80px 0; }
+
+    .schedule-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+
+    .select-styled {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-family: 'Exo 2', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .select-styled:focus { border-color: var(--accent); }
+
+    .schedule-grid-wrapper {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .schedule-grid {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+      font-size: 13px;
+    }
+
+    .schedule-grid th {
+      background: var(--surface2);
+      padding: 14px 16px;
+      text-align: center;
+      font-family: 'Orbitron', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .schedule-grid td {
+      border: 1px solid rgba(255,255,255,0.04);
+      padding: 4px;
+      vertical-align: top;
+      height: 56px;
+      min-width: 120px;
+    }
+
+    .schedule-grid td:first-child {
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      background: var(--surface2);
+      width: 80px;
+      vertical-align: middle;
+    }
+
+    .sched-block {
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+      cursor: pointer;
+      transition: filter 0.2s;
+      line-height: 1.3;
+    }
+
+    .sched-block:hover { filter: brightness(1.2); }
+
+    .sched-block.type-lec { background: rgba(0,229,255,0.15); border-left: 3px solid var(--accent); color: var(--accent); }
+    .sched-block.type-lab { background: rgba(123,47,247,0.2); border-left: 3px solid var(--accent2); color: #b085ff; }
+    .sched-block.type-pe { background: rgba(255,77,109,0.15); border-left: 3px solid var(--accent3); color: #ff8096; }
+    .sched-block span { opacity: 0.7; font-size: 10px; font-weight: 400; }
+
+    /* STATUS BADGE */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .badge-success { background: rgba(0,229,255,0.12); color: var(--accent); }
+    .badge-warning { background: rgba(255,77,109,0.12); color: var(--accent3); }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: blink 1.5s infinite; }
+
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity: 0.3; } }
+
+    /* ADVISER INFO */
+    .adviser-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .info-card h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      color: var(--accent);
+    }
+
+    .info-card p { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+
+    /* HIPO DIAGRAMS */
+    .hipo-tabs { display:flex; gap:8px; margin-bottom:32px; flex-wrap:wrap; }
+    .hipo-tab {
+      padding:10px 24px; border-radius:8px; border:1px solid var(--border);
+      background:transparent; color:var(--muted);
+      font-family:'Exo 2',sans-serif; font-size:13px; font-weight:600;
+      letter-spacing:1px; text-transform:uppercase; cursor:pointer; transition:all .2s;
+    }
+    .hipo-tab:hover { color:var(--text); border-color:rgba(0,229,255,.3); }
+    .hipo-tab.active { background:rgba(0,229,255,.1); color:var(--accent); border-color:var(--accent); }
+    .hipo-diagram { display:none; }
+    .hipo-diagram.active { display:block; }
+    .hipo-scroll { overflow-x:auto; padding-bottom:16px; }
+    .hipo-canvas {
+      min-width:860px; padding:40px 32px 48px;
+      background:var(--surface); border:1px solid var(--border); border-radius:12px; position:relative;
+    }
+    .hipo-box {
+      display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
+      border:1.5px solid rgba(0,229,255,.3); background:var(--surface2);
+      border-radius:6px; padding:8px 14px; text-align:center;
+      min-width:110px; transition:all .25s; cursor:default; position:relative;
+    }
+    .hipo-box:hover { border-color:var(--accent); box-shadow:0 0 16px rgba(0,229,255,.2); z-index:2; }
+    .hipo-box .box-num {
+      font-family:'Orbitron',monospace; font-size:10px; font-weight:700;
+      color:var(--accent2); background:rgba(123,47,247,.15);
+      padding:2px 7px; border-radius:3px; margin-bottom:5px; letter-spacing:1px;
+    }
+    .hipo-box .box-label { font-size:12px; font-weight:600; color:var(--text); line-height:1.35; }
+    .hipo-box.root { border-color:var(--accent); background:rgba(0,229,255,.07); box-shadow:0 0 20px rgba(0,229,255,.1); }
+    .hipo-box.main-node { border-color:rgba(123,47,247,.5); background:rgba(123,47,247,.07); }
+    .hipo-legend { display:flex; gap:24px; margin-top:24px; flex-wrap:wrap; }
+    .hipo-legend-item { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+    .hipo-legend-dot { width:12px; height:12px; border-radius:3px; border:1.5px solid; flex-shrink:0; }
+
+    /* FOOTER */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .footer-logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    footer p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.2); border-radius: 4px; }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--accent);
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-menu-btn { display: flex; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">AS</div>
+      <span class="logo-text">AlgoSched</span>
+    </div>
+    <nav>
+      <a href="#home" class="active">Home</a>
+      <a href="#schedule">Schedule</a>
+      <a href="#irregular">Irregular Students</a>
+      <a href="#info">My Info</a>
+      <a href="#hipo">HIPO</a>
+    </nav>
+    <div class="user-badge">
+      <span class="user-badge-role adviser">ADVISER</span>
+      <span id="userNameDisplay">adviser</span>
+      <a href="logout.html" class="logout-btn">Log out</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero" id="home">
+      <div class="hero-tag">🎓 Rizal College of Taal · CCS Department</div>
+      <h1>
+        Adviser<span>Dashboard</span>
+      </h1>
+      <p class="hero-sub">
+        Welcome to your <strong>AlgoSched Adviser Panel</strong>. View your assigned sections' schedules and access important information about your advisory responsibilities.
+      </p>
+      <div class="hero-actions">
+        <a href="#schedule" class="btn btn-primary">🗓 View Schedule</a>
+        <a href="#irregular" class="btn btn-outline">👥 Irregular Students</a>
+        <a href="#info" class="btn btn-outline">ℹ My Information</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-val" data-target="2">0</div>
+          <div class="stat-label">Sections Advised</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" data-target="45">0</div>
+          <div class="stat-label">Regular Students</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" data-target="3">0</div>
+          <div class="stat-label">Irregular Students</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" data-target="6">0</div>
+          <div class="stat-label">Subjects</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IRREGULAR STUDENT SCHEDULING -->
+    <section id="irregular">
+      <div class="section-header">
+        <h2>Irregular Student Scheduling</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="card" style="margin-bottom: 32px;">
+        <h3 style="font-family: 'Orbitron', monospace; font-size: 18px; font-weight: 700; letter-spacing: 1px; margin-bottom: 24px; color: var(--accent);">📝 Create Schedule for Irregular Student</h3>
+        
+        <form id="irregularForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+          <div>
+            <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px;">Student Name</label>
+            <input type="text" id="studentName" placeholder="Enter student full name" required style="width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; font-family: 'Exo 2', sans-serif; font-size: 14px;">
+          </div>
+          
+          <div>
+            <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px;">Student ID</label>
+            <input type="text" id="studentID" placeholder="e.g., 2024-00123" required style="width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; font-family: 'Exo 2', sans-serif; font-size: 14px;">
+          </div>
+          
+          <div>
+            <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px;">Year Level</label>
+            <select id="studentYear" required style="width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; font-family: 'Exo 2', sans-serif; font-size: 14px;">
+              <option value="">Select year level</option>
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+            </select>
+          </div>
+          
+          <div>
+            <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px;">Semester</label>
+            <select id="studentSemester" required style="width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; font-family: 'Exo 2', sans-serif; font-size: 14px;">
+              <option value="">Select semester</option>
+              <option value="1">1st Semester</option>
+              <option value="2">2nd Semester</option>
+            </select>
+          </div>
+        </form>
+        
+        <div style="margin-top: 24px;">
+          <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 12px;">Select Subjects to Schedule</label>
+          <div id="subjectSelector" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <!-- Subjects will be populated by JavaScript -->
+          </div>
+        </div>
+        
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+          <button type="button" onclick="generateIrregularSchedule()" class="btn btn-primary" style="padding: 12px 24px;">🎯 Generate Schedule</button>
+          <button type="button" onclick="clearIrregularForm()" class="btn btn-outline" style="padding: 12px 24px;">🗑 Clear Form</button>
+        </div>
+      </div>
+
+      <!-- Generated Schedule Display -->
+      <div id="irregularScheduleContainer" style="display: none;">
+        <div class="section-header" style="margin-bottom: 24px;">
+          <h3 style="font-family: 'Orbitron', monospace; font-size: 20px; font-weight: 700; letter-spacing: 1px;">📅 Generated Schedule</h3>
+          <div class="section-line"></div>
+        </div>
+        
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h4 id="scheduleStudentName" style="font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700; color: var(--accent); margin: 0;"></h4>
+              <p id="scheduleStudentDetails" style="font-size: 13px; color: var(--muted); margin: 4px 0 0 0;"></p>
+            </div>
+            <div style="display: flex; gap: 12px;">
+              <button onclick="printSchedule()" class="btn btn-outline" style="padding: 8px 16px; font-size: 12px;">🖨 Print</button>
+              <button onclick="exportSchedule()" class="btn btn-primary" style="padding: 8px 16px; font-size: 12px;">📤 Export</button>
+            </div>
+          </div>
+          
+          <div class="schedule-grid-wrapper">
+            <table class="schedule-grid" id="irregularScheduleTable">
+              <thead>
+                <tr>
+                  <th>TIME</th>
+                  <th>MONDAY</th>
+                  <th>TUESDAY</th>
+                  <th>WEDNESDAY</th>
+                  <th>THURSDAY</th>
+                  <th>FRIDAY</th>
+                  <th>SATURDAY</th>
+                </tr>
+              </thead>
+              <tbody id="irregularScheduleBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADVISER INFO -->
+    <section id="info">
+      <div class="section-header">
+        <h2>My Information</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="adviser-info">
+        <div class="info-card">
+          <h3>👨‍🏫 Adviser Details</h3>
+          <p><strong>Name:</strong> <span id="adviserName">Prof. Maria Santos</span></p>
+          <p><strong>Employee ID:</strong> <span id="adviserID">CCS-2024-001</span></p>
+          <p><strong>Department:</strong> College of Computer Studies</p>
+          <p><strong>Email:</strong> maria.santos@rct.edu.ph</p>
+        </div>
+
+        <div class="info-card">
+          <h3>📚 Assigned Sections</h3>
+          <p><strong>Year Level:</strong> 2nd Year</p>
+          <p><strong>Sections:</strong> 2A, 2B</p>
+          <p><strong>Total Students:</strong> 45 students</p>
+          <p><strong>Academic Year:</strong> 2024-2025</p>
+        </div>
+
+        <div class="info-card">
+          <h3>📋 Responsibilities</h3>
+          <p>• Monitor student attendance and performance</p>
+          <p>• Provide academic guidance and counseling</p>
+          <p>• Coordinate with faculty for student concerns</p>
+          <p>• Assist in curriculum implementation</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCHEDULE VIEWER -->
+    <section class="schedule-section" id="schedule">
+      <div class="section-header">
+        <h2>Section Schedule</h2>
+        <div class="section-line"></div>
+        <span class="badge badge-success"><span class="badge-dot"></span>Live</span>
+      </div>
+
+      <div class="schedule-controls">
+        <select class="select-styled" id="yearFilter" onchange="renderSchedule()">
+          <option value="2">2nd Year</option>
+        </select>
+        <select class="select-styled" id="semFilter" onchange="renderSchedule()">
+          <option value="1">1st Semester</option>
+          <option value="2">2nd Semester</option>
+        </select>
+        <select class="select-styled" id="sectionFilter" onchange="renderSchedule()">
+          <option value="A">Section A</option>
+          <option value="B">Section B</option>
+        </select>
+      </div>
+
+      <div class="schedule-grid-wrapper">
+        <table class="schedule-grid" id="scheduleTable">
+          <thead>
+            <tr>
+              <th>TIME</th>
+              <th>MONDAY</th>
+              <th>TUESDAY</th>
+              <th>WEDNESDAY</th>
+              <th>THURSDAY</th>
+              <th>FRIDAY</th>
+              <th>SATURDAY</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- HIPO DIAGRAMS -->
+    <section id="hipo">
+      <div class="section-header">
+        <h2>HIPO Diagrams</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="hipo-tabs">
+        <button class="hipo-tab active" onclick="switchHipo('adviser',this)">Adviser (Fig 3.5)</button>
+      </div>
+
+      <!-- ADVISER HIPO -->
+      <div class="hipo-diagram active" id="hipo-adviser">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">Figure 3.5 — Adviser HIPO Diagram: shows the modules accessible to an adviser user after login.</p>
+        <div class="hipo-scroll">
+          <div class="hipo-canvas">
+            <svg class="hipo-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;">
+              <defs>
+                <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L8,3 z" style="fill:rgba(0,229,255,0.5);stroke:none;"/>
+                </marker>
+              </defs>
+            </svg>
+
+            <!-- ROW 0 -->
+            <div style="display:flex;justify-content:center;margin-bottom:28px;">
+              <div class="hipo-box root"><div class="box-num">0.0</div><div class="box-label">AlgoSched</div></div>
+            </div>
+
+            <!-- ROW 1 -->
+            <div style="display:flex;gap:16px;justify-content:center;margin-bottom:28px;align-items:flex-start;">
+              <div class="hipo-box main-node"><div class="box-num">1.0</div><div class="box-label">Log in</div></div>
+              <div class="hipo-box main-node"><div class="box-num">2.0</div><div class="box-label">View<br>Information</div></div>
+              <div class="hipo-box main-node"><div class="box-num">3.0</div><div class="box-label">View Section<br>Schedule</div></div>
+              <div class="hipo-box main-node"><div class="box-num">4.0</div><div class="box-label">Log out</div></div>
+            </div>
+
+            <!-- ROW 2 -->
+            <div style="display:flex;gap:16px;justify-content:center;align-items:flex-start;">
+              <div style="min-width:110px;"></div>
+
+              <!-- 2.x -->
+              <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
+                <div class="hipo-box"><div class="box-num">2.1</div><div class="box-label">Adviser<br>Schedule</div></div>
+              </div>
+
+              <!-- 3.x -->
+              <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
+                <div class="hipo-box"><div class="box-num">3.1</div><div class="box-label">Irregular<br>Schedule</div></div>
+                <div class="hipo-box"><div class="box-num">3.2</div><div class="box-label">Year Level<br>Schedule</div></div>
+              </div>
+
+              <div style="min-width:110px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hipo-legend">
+          <div class="hipo-legend-item"><div class="hipo-legend-dot" style="border-color:var(--accent);background:rgba(0,229,255,.07)"></div>Root System</div>
+          <div class="hipo-legend-item"><div class="hipo-legend-dot" style="border-color:rgba(123,47,247,.5);background:rgba(123,47,247,.07)"></div>Main Module</div>
+          <div class="hipo-legend-item"><div class="hipo-legend-dot" style="border-color:rgba(0,229,255,.3);background:var(--surface2)"></div>Sub-process</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">AlgoSched</div>
+    <p>An Automated Class Scheduling System for CCS Students<br>
+    Rizal College of Taal · Using Elitist Genetic Algorithm & Constraint Satisfaction<br>
+    <span style="opacity:0.5">© 2025 — College of Computer Studies</span></p>
+  </footer>
+
+  <script>
+    // Check authentication
+    if (sessionStorage.getItem('loggedIn') !== 'true' || sessionStorage.getItem('role') !== 'adviser') {
+      window.location.href = 'login.html';
+    }
+
+    // Set user name
+    document.getElementById('userNameDisplay').textContent = sessionStorage.getItem('userName') || 'adviser';
+
+    function doLogout() {
+      // Clear session explicitly and redirect to login
+      console.log('[Logout] clearing session');
+      sessionStorage.removeItem('loggedIn');
+      sessionStorage.removeItem('role');
+      sessionStorage.removeItem('userName');
+      // Keep a known non-true value so the login redirect logic does not immediately send back
+      sessionStorage.setItem('loggedIn', 'false');
+      window.location.replace('login.html');
+    }
+
+    // Attach logout handler (ensure the button works even if inline onclick fails)
+    document.addEventListener('DOMContentLoaded', () => {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          doLogout();
+        });
+      }
+    });
+
+    // ========================
+    // SCHEDULE DATA
+    // ========================
+    const TIMES = ['7:00-8:00','8:00-9:00','9:00-10:00','10:00-11:00','11:00-12:00','12:00-1:00','1:00-2:00','2:00-3:00','3:00-4:00','4:00-5:00','5:00-6:00'];
+    const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+    const SUBJECTS = {
+      2: ['CC 201\nData Structures','CC 202\nOOP','CC 203\nDiscrete Math','GEC 3\nMath in Mod World','PE 2\nSports','CC 201L\nDSA Lab'],
+    };
+
+    function getType(subj) {
+      if (subj.includes('PE')) return 'pe';
+      if (subj.includes('Lab') || subj.includes('L\n')) return 'lab';
+      return 'lec';
+    }
+
+    let scheduleData = {};
+
+    function generateSchedule() {
+      scheduleData = {};
+      const year = parseInt(document.getElementById('yearFilter').value);
+      const section = document.getElementById('sectionFilter').value;
+      const key = `${year}-${section}`;
+      const subjects = [...SUBJECTS[year]];
+      const placed = new Set();
+      const occupied = {}; // day-time => true
+
+      subjects.forEach((subj, idx) => {
+        let attempts = 0;
+        while (attempts < 50) {
+          const day = Math.floor(Math.random() * 6);
+          const time = Math.floor(Math.random() * 9);
+          const span = getType(subj) === 'lab' ? 2 : 1;
+          const cellKey = `${day}-${time}`;
+          const cellKey2 = `${day}-${time+1}`;
+          if (!occupied[cellKey] && (span === 1 || (!occupied[cellKey2] && time < 9))) {
+            occupied[cellKey] = subj;
+            if (span === 2) occupied[cellKey2] = '__span';
+            break;
+          }
+          attempts++;
+        }
+      });
+
+      scheduleData[key] = occupied;
+      renderSchedule();
+    }
+
+    function renderSchedule() {
+      const year = document.getElementById('yearFilter').value;
+      const section = document.getElementById('sectionFilter').value;
+      const key = `${year}-${section}`;
+      const tbody = document.getElementById('scheduleBody');
+      tbody.innerHTML = '';
+
+      TIMES.forEach((time, timeIdx) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${time}</td>`;
+
+        DAYS.forEach((day, dayIdx) => {
+          const cellKey = `${dayIdx}-${timeIdx}`;
+          const subj = scheduleData[key]?.[cellKey];
+          let cellContent = '';
+
+          if (subj && subj !== '__span') {
+            const type = getType(subj);
+            const lines = subj.split('\n');
+            cellContent = `<div class="sched-block type-${type}"><div>${lines[0]}</div><span>${lines[1] || ''}</span></div>`;
+          }
+
+          row.innerHTML += `<td>${cellContent}</td>`;
+        });
+
+        tbody.appendChild(row);
+      });
+    }
+
+    function switchHipo(type, btn) {
+      // Only adviser HIPO for adviser page
+    }
+
+    // ========================
+    // IRREGULAR STUDENT SCHEDULING
+    // ========================
+    
+    // All available subjects by year
+    const ALL_SUBJECTS = {
+      1: [
+        'CC 101\nComputer Programming 1',
+        'CC 101L\nComputer Programming 1 Lab', 
+        'CC 102\nComputer Programming 2',
+        'CC 102L\nComputer Programming 2 Lab',
+        'GEC 1\nUnderstanding the Self',
+        'GEC 2\nMathematics in Modern World',
+        'PE 1\nPhysical Education 1',
+        'NSTP 1\nNational Service Training Program 1'
+      ],
+      2: [
+        'CC 201\nData Structures and Algorithms',
+        'CC 201L\nData Structures Lab',
+        'CC 202\nObject-Oriented Programming',
+        'CC 202L\nOOP Lab',
+        'CC 203\nDiscrete Mathematics',
+        'GEC 3\nMathematics in Modern World',
+        'PE 2\nPhysical Education 2',
+        'NSTP 2\nNational Service Training Program 2'
+      ],
+      3: [
+        'CC 301\nWeb Development',
+        'CC 301L\nWeb Development Lab',
+        'CC 302\nDatabase Systems',
+        'CC 302L\nDatabase Systems Lab',
+        'CC 303\nSoftware Engineering',
+        'CC 304\nComputer Networks',
+        'GEC 4\nEthics',
+        'PE 3\nPhysical Education 3'
+      ],
+      4: [
+        'CC 401\nCapstone Project 1',
+        'CC 402\nCapstone Project 2',
+        'CC 403\nMobile Development',
+        'CC 403L\nMobile Development Lab',
+        'CC 404\nArtificial Intelligence',
+        'GEC 5\nRizal Course',
+        'PE 4\nPhysical Education 4',
+        'CC 405\nInternship'
+      ]
+    };
+
+    let selectedSubjects = [];
+    let irregularScheduleData = {};
+
+    // Update subject selector when year changes
+    document.getElementById('studentYear').addEventListener('change', function() {
+      const year = parseInt(this.value);
+      populateSubjectSelector(year);
+    });
+
+    function populateSubjectSelector(year) {
+      const container = document.getElementById('subjectSelector');
+      container.innerHTML = '';
+      
+      if (!year || !ALL_SUBJECTS[year]) return;
+      
+      ALL_SUBJECTS[year].forEach((subject, index) => {
+        const subjectDiv = document.createElement('div');
+        subjectDiv.style.cssText = `
+          background: var(--surface2);
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          padding: 12px;
+          cursor: pointer;
+          transition: all 0.2s;
+          position: relative;
+        `;
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `subject-${index}`;
+        checkbox.value = subject;
+        checkbox.style.cssText = 'margin-right: 8px;';
+        
+        const label = document.createElement('label');
+        label.htmlFor = `subject-${index}`;
+        label.innerHTML = subject.replace('\n', '<br><small style="color: var(--muted); font-size: 11px;">');
+        label.style.cssText = 'cursor: pointer; font-size: 13px; line-height: 1.4;';
+        
+        subjectDiv.appendChild(checkbox);
+        subjectDiv.appendChild(label);
+        container.appendChild(subjectDiv);
+        
+        // Add click handler for the whole div
+        subjectDiv.addEventListener('click', function(e) {
+          if (e.target !== checkbox) {
+            checkbox.checked = !checkbox.checked;
+            updateSelectedSubjects();
+          }
+        });
+        
+        checkbox.addEventListener('change', updateSelectedSubjects);
+      });
+    }
+
+    function updateSelectedSubjects() {
+      selectedSubjects = Array.from(document.querySelectorAll('#subjectSelector input:checked')).map(cb => cb.value);
+    }
+
+    function generateIrregularSchedule() {
+      const form = document.getElementById('irregularForm');
+      const studentName = document.getElementById('studentName').value.trim();
+      const studentID = document.getElementById('studentID').value.trim();
+      const year = document.getElementById('studentYear').value;
+      const semester = document.getElementById('studentSemester').value;
+      
+      // Validation
+      if (!studentName || !studentID || !year || !semester) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+      
+      if (selectedSubjects.length === 0) {
+        alert('Please select at least one subject.');
+        return;
+      }
+      
+      // Generate schedule
+      irregularScheduleData = generateIrregularScheduleData(selectedSubjects);
+      
+      // Display schedule
+      displayIrregularSchedule(studentName, studentID, year, semester);
+      
+      // Show schedule container
+      document.getElementById('irregularScheduleContainer').style.display = 'block';
+      
+      // Scroll to schedule
+      document.getElementById('irregularScheduleContainer').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function generateIrregularScheduleData(subjects) {
+      const occupied = {};
+      const placed = new Set();
+      
+      subjects.forEach((subj) => {
+        let attempts = 0;
+        let placed = false;
+        
+        while (attempts < 100 && !placed) {
+          const day = Math.floor(Math.random() * 6);
+          const time = Math.floor(Math.random() * 9); // Avoid last 2 slots for labs
+          const span = getType(subj) === 'lab' ? 2 : 1;
+          const cellKey = `${day}-${time}`;
+          const cellKey2 = span === 2 ? `${day}-${time+1}` : null;
+          
+          // Check if slots are available
+          if (!occupied[cellKey] && (!cellKey2 || !occupied[cellKey2])) {
+            occupied[cellKey] = subj;
+            if (cellKey2) occupied[cellKey2] = '__span';
+            placed = true;
+          }
+          attempts++;
+        }
+      });
+      
+      return occupied;
+    }
+
+    function displayIrregularSchedule(studentName, studentID, year, semester) {
+      // Update header info
+      document.getElementById('scheduleStudentName').textContent = studentName;
+      document.getElementById('scheduleStudentDetails').textContent = 
+        `ID: ${studentID} • ${year}${getOrdinalSuffix(year)} Year • ${semester}${getOrdinalSuffix(semester)} Semester`;
+      
+      // Render schedule table
+      const tbody = document.getElementById('irregularScheduleBody');
+      tbody.innerHTML = '';
+      
+      TIMES.forEach((time, timeIdx) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${time}</td>`;
+        
+        DAYS.forEach((day, dayIdx) => {
+          const cellKey = `${dayIdx}-${timeIdx}`;
+          const subj = irregularScheduleData[cellKey];
+          let cellContent = '';
+          
+          if (subj && subj !== '__span') {
+            const type = getType(subj);
+            const lines = subj.split('\n');
+            cellContent = `<div class="sched-block type-${type}"><div>${lines[0]}</div><span>${lines[1] || ''}</span></div>`;
+          }
+          
+          row.innerHTML += `<td>${cellContent}</td>`;
+        });
+        
+        tbody.appendChild(row);
+      });
+    }
+
+    function getOrdinalSuffix(num) {
+      const n = parseInt(num);
+      if (n === 1) return 'st';
+      if (n === 2) return 'nd';
+      if (n === 3) return 'rd';
+      return 'th';
+    }
+
+    function clearIrregularForm() {
+      document.getElementById('irregularForm').reset();
+      document.getElementById('subjectSelector').innerHTML = '';
+      selectedSubjects = [];
+      document.getElementById('irregularScheduleContainer').style.display = 'none';
+    }
+
+    function printSchedule() {
+      const studentName = document.getElementById('scheduleStudentName').textContent;
+      const studentDetails = document.getElementById('scheduleStudentDetails').textContent;
+      
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Irregular Student Schedule - ${studentName}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #00e5ff; border-bottom: 2px solid #00e5ff; padding-bottom: 10px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+            th { background-color: #f5f5f5; }
+            .sched-block { background: #e8f4f8; padding: 4px; border-radius: 4px; margin: 2px; }
+            @media print { body { margin: 0; } }
+          </style>
+        </head>
+        <body>
+          <h1>Irregular Student Schedule</h1>
+          <p><strong>Student:</strong> ${studentName}</p>
+          <p><strong>Details:</strong> ${studentDetails}</p>
+          <p><strong>Generated by:</strong> ${sessionStorage.getItem('userName') || 'Adviser'}</p>
+          <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+          ${document.getElementById('irregularScheduleTable').outerHTML}
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+
+    function exportSchedule() {
+      const studentName = document.getElementById('scheduleStudentName').textContent;
+      const studentDetails = document.getElementById('scheduleStudentDetails').textContent;
+      
+      let csvContent = `Irregular Student Schedule\n`;
+      csvContent += `Student: ${studentName}\n`;
+      csvContent += `Details: ${studentDetails}\n`;
+      csvContent += `Generated by: ${sessionStorage.getItem('userName') || 'Adviser'}\n`;
+      csvContent += `Date: ${new Date().toLocaleDateString()}\n\n`;
+      
+      csvContent += `Time,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday\n`;
+      
+      const rows = document.querySelectorAll('#irregularScheduleTable tbody tr');
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const rowData = [];
+        cells.forEach(cell => {
+          const schedBlock = cell.querySelector('.sched-block');
+          if (schedBlock) {
+            const subject = schedBlock.querySelector('div').textContent;
+            const type = schedBlock.querySelector('span').textContent;
+            rowData.push(`"${subject} ${type}"`);
+          } else {
+            rowData.push('');
+          }
+        });
+        csvContent += rowData.join(',') + '\n';
+      });
+      
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `irregular_schedule_${studentName.replace(/\s+/g, '_')}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+
+    // Initialize subject selector if year is pre-selected
+    document.addEventListener('DOMContentLoaded', function() {
+      const yearSelect = document.getElementById('studentYear');
+      if (yearSelect.value) {
+        populateSubjectSelector(parseInt(yearSelect.value));
+      }
+    });
+  </script>
+</body>
+</html>

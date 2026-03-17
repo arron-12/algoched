@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <meta name="description" content="AlgoSched – Automated Class Scheduling for CCS Students of Rizal College of Taal" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>AlgoSched | Login</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #060912;
+      --surface: #0d1224;
+      --surface2: #131929;
+      --accent: #00e5ff;
+      --accent2: #7b2ff7;
+      --accent3: #ff4d6d;
+      --text: #e2e8f8;
+      --muted: #6b7a99;
+      --border: rgba(0,229,255,0.15);
+      --glow: 0 0 20px rgba(0,229,255,0.25);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Exo 2', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Animated grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Ambient glow orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: 0;
+      pointer-events: none;
+      animation: pulse 6s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(123,47,247,0.12); top: -150px; right: -100px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(0,229,255,0.08); bottom: 100px; left: -100px; animation-delay: 3s; }
+    .orb-3 { width: 300px; height: 300px; background: rgba(255,77,109,0.06); top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 1.5s; }
+
+    @keyframes pulse { from { opacity: 0.6; } to { opacity: 1; } }
+
+    /* LOGIN PAGE */
+    .login-bg {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .login-orb1 {
+      position: absolute; width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(123,47,247,0.18) 0%, transparent 70%);
+      top: -200px; right: -150px; border-radius: 50%;
+      animation: pulse 6s ease-in-out infinite alternate;
+    }
+    .login-orb2 {
+      position: absolute; width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(0,229,255,0.1) 0%, transparent 70%);
+      bottom: -150px; left: -100px; border-radius: 50%;
+      animation: pulse 6s 3s ease-in-out infinite alternate;
+    }
+
+    .login-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 40px;
+      box-shadow: 0 0 60px rgba(0,229,255,0.08), 0 32px 80px rgba(0,0,0,0.5);
+      animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity:0; transform: translateY(40px) scale(0.97); }
+      to   { opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    .login-logo {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .login-logo-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 900; color: white;
+      box-shadow: 0 0 24px rgba(0,229,255,0.35);
+    }
+
+    .login-logo-text {
+      font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 900; letter-spacing: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .login-subtitle {
+      text-align: center; font-size: 12px; color: var(--muted);
+      letter-spacing: 1px; margin-bottom: 36px; line-height: 1.6;
+    }
+
+    /* Role selector */
+    .role-selector {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px;
+    }
+
+    .role-btn {
+      padding: 14px 10px; border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted);
+      font-family: 'Exo 2', sans-serif; font-size: 13px; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+      transition: all 0.2s; display: flex; flex-direction: column;
+      align-items: center; gap: 6px;
+    }
+
+    .role-btn .role-icon { font-size: 22px; }
+
+    .role-btn:hover { border-color: rgba(0,229,255,0.4); color: var(--text); }
+
+    .role-btn.active {
+      border-color: var(--accent); color: var(--accent);
+      background: rgba(0,229,255,0.08);
+      box-shadow: 0 0 20px rgba(0,229,255,0.12);
+    }
+
+    .role-btn.active.adviser {
+      border-color: var(--accent2); color: #b085ff;
+      background: rgba(123,47,247,0.1);
+      box-shadow: 0 0 20px rgba(123,47,247,0.15);
+    }
+
+    /* Form fields */
+    .form-group { margin-bottom: 18px; }
+
+    .form-label {
+      display: block; font-size: 11px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%; padding: 13px 16px;
+      background: var(--surface2); border: 1.5px solid var(--border);
+      border-radius: 8px; color: var(--text);
+      font-family: 'Exo 2', sans-serif; font-size: 14px;
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,229,255,0.1);
+    }
+
+    .form-input::placeholder { color: var(--muted); }
+
+    .input-wrapper { position: relative; }
+
+    .input-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 16px; pointer-events: none;
+    }
+
+    .input-wrapper .form-input { padding-left: 42px; }
+
+    .show-pass {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: 16px; padding: 0; transition: color 0.2s;
+    }
+    .show-pass:hover { color: var(--accent); }
+
+    .login-btn {
+      width: 100%; padding: 15px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      border: none; border-radius: 10px; color: white;
+      font-family: 'Exo 2', sans-serif; font-size: 14px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+      transition: all 0.25s; margin-top: 8px;
+      box-shadow: 0 4px 24px rgba(0,229,255,0.25);
+    }
+
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,229,255,0.4); }
+    .login-btn:active { transform: translateY(0); }
+
+    .login-btn.adviser-btn {
+      background: linear-gradient(135deg, var(--accent2), #b085ff);
+      box-shadow: 0 4px 24px rgba(123,47,247,0.3);
+    }
+    .login-btn.adviser-btn:hover { box-shadow: 0 8px 32px rgba(123,47,247,0.5); }
+
+    .login-error {
+      background: rgba(255,77,109,0.1); border: 1px solid rgba(255,77,109,0.3);
+      border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--accent3);
+      margin-bottom: 16px; display: none; text-align: center;
+    }
+    .login-error.show { display: block; animation: shake 0.4s ease; }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%,60% { transform: translateX(-6px); }
+      40%,80% { transform: translateX(6px); }
+    }
+
+    .login-hint {
+      text-align: center; margin-top: 20px; font-size: 11px; color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .login-hint code {
+      background: var(--surface2); border: 1px solid var(--border);
+      padding: 2px 6px; border-radius: 4px; font-size: 11px; color: var(--accent);
+    }
+
+    /* Loading spinner on btn */
+    .btn-spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+      border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="login-bg"></div>
+  <div class="login-orb1"></div>
+  <div class="login-orb2"></div>
+
+  <div class="login-card">
+    <!-- Logo -->
+    <div class="login-logo">
+      <div class="login-logo-icon">AS</div>
+      <span class="login-logo-text">AlgoSched</span>
+    </div>
+    <p class="login-subtitle">Rizal College of Taal · CCS Department<br>Automated Class Scheduling System</p>
+
+    <!-- Role Selector -->
+    <div class="role-selector">
+      <button class="role-btn active" id="roleAdmin" onclick="selectRole('admin')">
+        <span class="role-icon">🛡️</span>
+        Admin
+      </button>
+      <button class="role-btn adviser" id="roleAdviser" onclick="selectRole('adviser')">
+        <span class="role-icon">👨‍🏫</span>
+        Adviser
+      </button>
+    </div>
+
+    <!-- Error Message -->
+    <div class="login-error" id="loginError">⚠ Invalid credentials. Please try again.</div>
+
+    <!-- Form -->
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <div class="input-wrapper">
+        <span class="input-icon">👤</span>
+        <input class="form-input" type="text" id="loginUser" placeholder="Enter username" autocomplete="username" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="input-wrapper">
+        <span class="input-icon">🔒</span>
+        <input class="form-input" type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password" />
+        <button class="show-pass" onclick="togglePass()" id="showPassBtn" title="Show password">👁</button>
+      </div>
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+
+    <div class="login-hint" id="loginHint">
+      Demo — Admin: <code>admin</code> / <code>admin123</code><br>
+      Adviser: <code>adviser</code> / <code>adviser123</code>
+    </div>
+  </div>
+
+  <script>
+    let currentRole = 'admin';
+
+    function selectRole(role) {
+      currentRole = role;
+      document.getElementById('roleAdmin').classList.toggle('active', role === 'admin');
+      document.getElementById('roleAdviser').classList.toggle('active', role === 'adviser');
+      document.getElementById('loginBtn').classList.toggle('adviser-btn', role === 'adviser');
+    }
+
+    function togglePass() {
+      const pass = document.getElementById('loginPass');
+      const btn = document.getElementById('showPassBtn');
+      if (pass.type === 'password') {
+        pass.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        pass.type = 'password';
+        btn.textContent = '👁';
+      }
+    }
+
+    function doLogin() {
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      const error = document.getElementById('loginError');
+      const btn = document.getElementById('loginBtn');
+
+      error.classList.remove('show');
+
+      // Demo credentials
+      const validCreds = {
+        admin: { user: 'admin', pass: 'admin123' },
+        adviser: { user: 'adviser', pass: 'adviser123' }
+      };
+
+      if (user === validCreds[currentRole].user && pass === validCreds[currentRole].pass) {
+        // Store session
+        sessionStorage.setItem('loggedIn', 'true');
+        sessionStorage.setItem('role', currentRole);
+        sessionStorage.setItem('userName', user);
+
+        // Redirect to appropriate page
+        if (currentRole === 'admin') {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'adviser.html';
+        }
+      } else {
+        error.classList.add('show');
+      }
+    }
+
+    // Enter key support
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') doLogin();
+    });
+
+    // Check if already logged in
+    if (sessionStorage.getItem('loggedIn') === 'true') {
+      const role = sessionStorage.getItem('role');
+      if (role === 'admin') {
+        window.location.href = 'admin.html';
+      } else {
+        window.location.href = 'adviser.html';
+      }
+    }
+  </script>
+</body>
+</html>
