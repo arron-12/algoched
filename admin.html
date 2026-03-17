@@ -816,8 +816,8 @@
       <a href="#scheduling">Scheduling</a>
       <a href="#release">Release</a>
       <a href="#schedule">Schedule</a>
-      <a href="#algorithm">Algorithm</a>
-      <a href="#hipo">HIPO</a>
+      
+      
     </nav>
     <div class="user-badge">
       <span class="user-badge-role admin">ADMIN</span>
@@ -1280,106 +1280,10 @@
     </section>
 
     <!-- ALGORITHM -->
-    <section id="algorithm">
-      <div class="section-header">
-        <h2>Algorithm Metrics</h2>
-        <div class="section-line"></div>
-      </div>
-
-      <div class="algo-panel">
-        <div class="card">
-          <h3>⚡ Genetic Algorithm — Fitness Evolution</h3>
-          <br>
-          <div class="progress-label"><span>Population Size</span><span>200 chromosomes</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
-
-          <div class="progress-label"><span>Elitism Rate</span><span>15%</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:15%"></div></div>
-
-          <div class="progress-label"><span>Crossover Rate</span><span>85%</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
-
-          <div class="progress-label"><span>Mutation Rate</span><span>10%</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:10%"></div></div>
-
-          <div class="progress-label"><span>Current Fitness Score</span><span id="fitnessScore">96.4%</span></div>
-          <div class="progress-bar"><div class="progress-fill" id="fitnessBar" style="width:96.4%"></div></div>
-
-          <canvas id="fitnessChart" width="100%" height="120" style="width:100%;margin-top:16px;"></canvas>
-        </div>
-
-        <div class="card">
-          <h3>🔒 Constraint Satisfaction</h3>
-          <br>
-          <div class="progress-label"><span>Hard Constraint: No Room Double-Booking</span><span style="color:var(--accent)">✓</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
-
-          <div class="progress-label"><span>Hard Constraint: No Teacher Conflict</span><span style="color:var(--accent)">✓</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
-
-          <div class="progress-label"><span>Hard Constraint: No Student Overlap</span><span style="color:var(--accent)">✓</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
-
-          <div class="progress-label"><span>Soft Constraint: Preferred Time Slots</span><span style="color:#b085ff">88%</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:88%"></div></div>
-
-          <div class="progress-label"><span>Soft Constraint: Room Utilization</span><span style="color:#b085ff">91%</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:91%"></div></div>
-
-          <div class="progress-label"><span>Soft Constraint: Load Balancing</span><span style="color:#b085ff">85%</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
-
-          <br>
-          <div style="font-size:12px;color:var(--muted);line-height:1.8;">
-            ⏱ Last generated: <span style="color:var(--text)" id="lastGenTime">—</span><br>
-            🔁 Generations: <span style="color:var(--text)">500</span><br>
-            🧬 Best chromosome fitness: <span style="color:var(--accent)">0.964</span>
-          </div>
-        </div>
-      </div>
-    </section>
+   
 
     <!-- FEATURES -->
-    <section id="features">
-      <div class="section-header">
-        <h2>System Features</h2>
-        <div class="section-line"></div>
-      </div>
-
-      <div class="features-grid">
-        <div class="card">
-          <div class="feature-icon c1">🧬</div>
-          <h3>Elitist GA Engine</h3>
-          <p>Preserves top-performing chromosomes across generations ensuring the best schedule is never lost during evolution.</p>
-        </div>
-        <div class="card">
-          <div class="feature-icon c2">🔒</div>
-          <h3>Hard Constraint Enforcement</h3>
-          <p>Guarantees zero conflicts in room allocation, faculty assignments, and student section overlaps through CSP filtering.</p>
-        </div>
-        <div class="card">
-          <div class="feature-icon c3">📊</div>
-          <h3>Multi-objective Optimization</h3>
-          <p>Balances competing soft constraints like preferred time slots, faculty load, and room utilization simultaneously.</p>
-        </div>
-        <div class="card">
-          <div class="feature-icon c4">⚡</div>
-          <h3>Real-Time Generation</h3>
-          <p>Produces a fully optimized schedule for the entire CCS department within seconds using heuristic acceleration.</p>
-        </div>
-        <div class="card">
-          <div class="feature-icon c5">🌐</div>
-          <h3>Web-Based Access</h3>
-          <p>Access the system from any modern web browser. No installation required for immediate use and updates.</p>
-        </div>
-        <div class="card">
-          <div class="feature-icon c6">📤</div>
-          <h3>Export & Print</h3>
-          <p>Export finalized schedules as PDF or Excel for distribution to faculty, students, and the registrar's office.</p>
-        </div>
-      </div>
-    </section>
-
+    
     <!-- ABOUT -->
     <section id="about">
       <div class="section-header">
@@ -1398,108 +1302,12 @@
         </div>
 
         <div>
-          <div class="card" style="margin-bottom:24px;">
-            <h3>EGA Process Flow</h3>
-            <ul class="algo-steps">
-              <li><span class="step-num">01</span>Initialize random population of schedule chromosomes</li>
-              <li><span class="step-num">02</span>Evaluate fitness using constraint satisfaction score</li>
-              <li><span class="step-num">03</span>Select elite chromosomes (top 15%) for preservation</li>
-              <li><span class="step-num">04</span>Tournament selection for parent chromosomes</li>
-              <li><span class="step-num">05</span>Single-point crossover to produce offspring</li>
-              <li><span class="step-num">06</span>Random mutation to maintain diversity</li>
-              <li><span class="step-num">07</span>Replace population, keep elites intact</li>
-              <li><span class="step-num">08</span>Repeat until convergence or 500 generations</li>
-            </ul>
-          </div>
+         
         </div>
       </div>
     </section>
 
-    <!-- HIPO DIAGRAMS -->
-    <section id="hipo">
-      <div class="section-header">
-        <h2>HIPO Diagrams</h2>
-        <div class="section-line"></div>
-      </div>
-
-      <div class="hipo-tabs">
-        <button class="hipo-tab active" onclick="switchHipo('admin',this)">Admin (Fig 3.4)</button>
-      </div>
-
-      <!-- ADMIN HIPO -->
-      <div class="hipo-diagram active" id="hipo-admin">
-        <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">Figure 3.4 — Admin HIPO Diagram: shows the top-level modules and sub-processes available to the system administrator.</p>
-        <div class="hipo-scroll">
-          <div class="hipo-canvas">
-            <svg class="hipo-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;">
-              <defs>
-                <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                  <path d="M0,0 L0,6 L8,3 z" style="fill:rgba(0,229,255,0.5);stroke:none;"/>
-                </marker>
-              </defs>
-            </svg>
-
-            <!-- ROW 0: Root -->
-            <div style="display:flex;justify-content:center;margin-bottom:28px;">
-              <div class="hipo-box root"><div class="box-num">0.0</div><div class="box-label">AlgoSched</div></div>
-            </div>
-
-            <!-- ROW 1: Main nodes -->
-            <div style="display:flex;gap:12px;justify-content:center;margin-bottom:28px;align-items:flex-start;">
-              <div class="hipo-box main-node"><div class="box-num">1.0</div><div class="box-label">Log in</div></div>
-              <div class="hipo-box main-node"><div class="box-num">2.0</div><div class="box-label">Dashboard</div></div>
-              <div class="hipo-box main-node"><div class="box-num">3.0</div><div class="box-label">Faculty<br>Management</div></div>
-              <div class="hipo-box main-node"><div class="box-num">4.0</div><div class="box-label">Scheduling</div></div>
-              <div class="hipo-box main-node"><div class="box-num">5.0</div><div class="box-label">Check &<br>Release</div></div>
-              <div class="hipo-box main-node"><div class="box-num">6.0</div><div class="box-label">Log out</div></div>
-            </div>
-
-            <!-- ROW 2: Sub-nodes -->
-            <div style="display:flex;gap:12px;justify-content:center;align-items:flex-start;">
-              <!-- placeholder for 1.0 (no children) -->
-              <div style="min-width:110px;"></div>
-
-              <!-- 2.x -->
-              <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
-                <div class="hipo-box"><div class="box-num">2.1</div><div class="box-label">Total<br>Adviser</div></div>
-                <div class="hipo-box"><div class="box-num">2.2</div><div class="box-label">Total<br>Subject</div></div>
-                <div class="hipo-box"><div class="box-num">2.3</div><div class="box-label">Total Section<br>and year</div></div>
-              </div>
-
-              <!-- 3.x -->
-              <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
-                <div class="hipo-box"><div class="box-num">3.1</div><div class="box-label">Subject<br>Prof</div></div>
-                <div class="hipo-box"><div class="box-num">3.2</div><div class="box-label">Prof<br>schedule</div></div>
-                <div class="hipo-box"><div class="box-num">3.3</div><div class="box-label">Subject<br>Code</div></div>
-              </div>
-
-              <!-- 4.x -->
-              <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
-                <div class="hipo-box"><div class="box-num">4.1</div><div class="box-label">Set Time and<br>day Slots</div></div>
-                <div class="hipo-box"><div class="box-num">4.2</div><div class="box-label">Manage<br>Subjects</div></div>
-                <div class="hipo-box"><div class="box-num">4.3</div><div class="box-label">Manage Section<br>and year</div></div>
-              </div>
-
-              <!-- 5.x -->
-              <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
-                <div class="hipo-box"><div class="box-num">5.1</div><div class="box-label">Check<br>Schedule</div></div>
-                <div class="hipo-box"><div class="box-num">5.2</div><div class="box-label">Print<br>Schedules</div></div>
-                <div class="hipo-box"><div class="box-num">5.3</div><div class="box-label">Publish to<br>Students</div></div>
-              </div>
-
-              <!-- placeholder for 6.0 -->
-              <div style="min-width:110px;"></div>
-            </div>
-          </div><!-- /hipo-canvas -->
-        </div>
-
-        <div class="hipo-legend">
-          <div class="hipo-legend-item"><div class="hipo-legend-dot" style="border-color:var(--accent);background:rgba(0,229,255,.07)"></div>Root System</div>
-          <div class="hipo-legend-item"><div class="hipo-legend-dot" style="border-color:rgba(123,47,247,.5);background:rgba(123,47,247,.07)"></div>Main Module</div>
-          <div class="hipo-legend-item"><div class="hipo-legend-dot" style="border-color:rgba(0,229,255,.3);background:var(--surface2)"></div>Sub-process</div>
-        </div>
-      </div>
-    </section>
+   
   </main>
 
   <!-- FOOTER -->
